@@ -114,7 +114,7 @@ class Resource(GQLObject):
             pass
         else:
             if self.page_info:
-                page_info = "{pageInfo{hasNextPage matchCount} "
+                page_info = "pageInfo{hasNextPage matchCount} "
             else:
                 page_info = ""
             if self.cursor:
