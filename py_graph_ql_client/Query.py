@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Generator, List, Optional, Tuple, Union
 from abc import ABC, abstractmethod
 from itertools import chain
+from typing import List, Optional, Tuple, Union
 
 
 class GQLObject(ABC):
@@ -32,7 +32,7 @@ class Query(GQLObject):
         resources = list()
         for resource in self.resources:
             resources.append(resource.generate_query())
-            fragments.extend(resource.get_fragment_queries())
+            fragments.extend(resource.fragment_queries)
         query = f"query {self.name}({self.args_list_to_query()}){''.join(resources)}"
         if fragments:
             query = f"{' '.join(fragments)} {query}"
@@ -55,8 +55,7 @@ class Fragment(GQLObject):
         self.resource = resource
 
     def generate_query(self) -> str:
-        query = f"fragment {self.name} on {self.resource.name} {{{self.resource.properties_to_string()}}}"
-        return query
+        return f"fragment {self.name} on {self.resource.name} {{{self.resource.properties_to_string()}}}"
 
 
 class Resource(GQLObject):
@@ -83,10 +82,10 @@ class Resource(GQLObject):
         for property in chain(self._properties, self._fragments):
             yield property
 
-    def get_fragment_queries(self):
+    @property
+    def fragment_queries(self):
         if self._fragments:
-            queries = [x[1].generate_query() for x in self._fragments]
-            return queries
+            return [x[1].generate_query() for x in self._fragments]
         else:
             return list()
 
